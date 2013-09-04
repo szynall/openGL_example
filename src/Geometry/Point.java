@@ -1,29 +1,21 @@
-package test;
+package Geometry;
 
 
 public class Point {
-	   private int id;
        private float x;
        private float y;
        private float z;
+       public Vector3 normal;
        
        public Point() {
        }
 
-       public Point(int id,float x, float y, float z) {
+       public Point(float x, float y, float z) {
               this.x = x;
               this.y = y;
               this.z = z;
-              this.id = id;
        }
        
-       public int getId() {
-           return id;
-   		}
-
-    public void setId(int id) {
-           this.id = id;
-   		}
        public float getX() {
               return x;
        }

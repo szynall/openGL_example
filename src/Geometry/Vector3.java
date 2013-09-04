@@ -99,7 +99,7 @@ public class Vector3
 	{
 		return (float) Math.sqrt(this.dot(this));	
 	}
-
+	
 	public Vector3 normalize()
 	{
 		return this.div(norm());
@@ -123,6 +123,14 @@ public class Vector3
 	public void setX(float x)
 	{
 		this.xyz[0] = x;
+	}
+	public void setY(float y)
+	{
+		this.xyz[1] = y;
+	}
+	public void setZ(float z)
+	{
+		this.xyz[2] = z;
 	}
 	public String toString()
 	{
