@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import Geometry.Triangle;
 import Geometry.Vector3;
@@ -15,7 +17,7 @@ public class LoaderOBJ
 {
 	public ArrayList<Vector3>	v = new ArrayList<Vector3>();//Lista punktów
     public ArrayList<Triangle>	f = new ArrayList<Triangle>();	//Lista trójk¹tów
-
+    public ArrayList<Vector3>   n = new ArrayList<Vector3>();//Lista normalnych
 	/**
 	 * Load obj
 	 * 
@@ -59,8 +61,8 @@ public class LoaderOBJ
 				else if (splitData[0].equals("f")) 
 				{ 
 					p1=v.get(Integer.parseInt(splitData[1])-1);
-					p2=v.get(Integer.parseInt(splitData[3])-1);
-					p3=v.get(Integer.parseInt(splitData[2])-1);
+					p2=v.get(Integer.parseInt(splitData[2])-1);
+					p3=v.get(Integer.parseInt(splitData[3])-1);
 					
 					//p1
 					Vector3 n1,n2,n3, v1,v2;
@@ -70,6 +72,7 @@ public class LoaderOBJ
 					if (n1.z()<0)
 						n1=n1.neg();
 					n1 = n1.normalize();
+					n1.id = Integer.parseInt(splitData[1])-1;
 					//p2
 					v1 = p1.sub(p2);
 					v2 = p3.sub(p2);
@@ -77,6 +80,7 @@ public class LoaderOBJ
 					if (n2.z()<0)
 						n2=n2.neg();
 					n2 = n2.normalize();
+					n2.id = Integer.parseInt(splitData[2])-1;
 					//p3
 					v1 = p2.sub(p3);
 					v2 = p1.sub(p3);
@@ -84,7 +88,11 @@ public class LoaderOBJ
 					if (n3.z()<0)
 						n3=n3.neg();
 					n3 = n3.normalize();
-					f.add(new Triangle(p1,p2,p3,n1,n2,n3));				
+					n3.id = Integer.parseInt(splitData[3])-1;
+					f.add(new Triangle(p1,p2,p3));	
+					n.add(n1);
+					n.add(n2);
+					n.add(n3);
 				}
 			}
 		} 
@@ -92,5 +100,35 @@ public class LoaderOBJ
 		{
 			e.printStackTrace();
 		}
+		Comparator<Vector3> cmp = new Comparator<Vector3>() {
+            @Override
+            public int compare(Vector3 o1, Vector3 o2) {
+                return o1.id - o2.id;
+            }
+
+        };
+		ArrayList<Vector3> nCopy = new ArrayList<Vector3>(n);
+		Collections.sort(nCopy,cmp);
+		Vector3 temp;
+		for (int i = 1; i < 199; i++) 
+		{
+			for (int j = 1; j < 199; j++) 
+			{
+				temp = nCopy.get(i*200+j);
+			//	n.get(i*200+j).set().) ;
+			}
+		}
 	}
 }
+/*
+class NormalCompare implements Comparator<Vector3> {
+
+    @Override
+    public int compare(Vector3 o1, Vector3 o2) {
+        // write comparison logic here like below , it's just a sample
+        return o1.id.compareTo(o2.id);
+    }
+    
+    
+}
+*/

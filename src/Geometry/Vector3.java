@@ -3,6 +3,7 @@ package Geometry;
 public class Vector3
 {
 	float xyz[] = new float[3];
+	public int id;
 	public Vector3()
 	{
 		xyz[0] = 0;
@@ -123,6 +124,13 @@ public class Vector3
 	public void setX(float x)
 	{
 		this.xyz[0] = x;
+	}
+	
+	public void set(Vector3 v)
+	{
+		this.xyz[0] = v.x();
+		this.xyz[1] = v.y();
+		this.xyz[2] = v.z();
 	}
 	public void setY(float y)
 	{

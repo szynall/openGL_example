@@ -6,7 +6,7 @@ import javax.media.opengl.*;
 import javax.media.opengl.awt.GLCanvas;
 import javax.swing.JFrame;
 import com.jogamp.opengl.util.Animator;
-import com.jogamp.opengl.util.FPSAnimator;
+//import com.jogamp.opengl.util.FPSAnimator;
  
 public class HelloWorld
 {
@@ -16,8 +16,8 @@ public class HelloWorld
     	GLProfile glp = GLProfile.getDefault();
         GLCapabilities caps = new GLCapabilities(glp);
         GLCanvas canvas = new GLCanvas(caps);
-        final FPSAnimator animator = new FPSAnimator(canvas,60);
-        //final Animator animator = new Animator(canvas);
+       // final FPSAnimator animator = new FPSAnimator(canvas,60);
+        final Animator animator = new Animator(canvas);
         
         JFrame frame = new JFrame("AWT Window Test");
         frame.setSize(800, 600);

@@ -17,10 +17,10 @@ import Geometry.*;
 class Renderer implements GLEventListener, KeyListener  
 {
     private GLU glu;
-    public LoaderOBJ loader = new LoaderOBJ("scene2.obj");
+    public LoaderOBJ loader = new LoaderOBJ("scene3.obj");
     public Camera camera;
     private boolean forward=false, backward=false, left=false, right = false, up = false, down = false, linesOn;
-
+    private int terrain;
     
     
     @Override
@@ -39,17 +39,7 @@ class Renderer implements GLEventListener, KeyListener
         gl.glLoadIdentity();
         gl.glTranslatef(-camera.eyePos.x(), -camera.eyePos.y(), -camera.eyePos.z());  
     
-        for(int i=0;i<loader.f.size();i++)
-        {
-        	gl.glBegin(GL2.GL_TRIANGLES);	
-        		gl.glNormal3f(loader.f.get(i).normal[0].x(),loader.f.get(i).normal[0].y(),loader.f.get(i).normal[0].z());
-	        	gl.glVertex3f(loader.f.get(i).getP1().x(), loader.f.get(i).getP1().z(), loader.f.get(i).getP1().y());
-	        	gl.glNormal3f(loader.f.get(i).normal[1].x(),loader.f.get(i).normal[1].y(),loader.f.get(i).normal[1].z());
-	        	gl.glVertex3f(loader.f.get(i).getP2().x(), loader.f.get(i).getP2().z(), loader.f.get(i).getP2().y());
-	        	gl.glNormal3f(loader.f.get(i).normal[2].x(),loader.f.get(i).normal[2].y(),loader.f.get(i).normal[2].z());
-	        	gl.glVertex3f(loader.f.get(i).getP3().x(), loader.f.get(i).getP3().z(), loader.f.get(i).getP3().y());
-	        gl.glEnd();
-	        	
+        gl.glCallList(terrain);
 	       /*
 	       gl.glColor4f(1.0f,0.0f,0.0f,1.0f);
 	       gl.glLineWidth(0.5f); 
@@ -99,7 +89,7 @@ class Renderer implements GLEventListener, KeyListener
         	}
         	*/
         	
-        }
+       // }
         gl.glFlush();
     }
     
@@ -142,6 +132,22 @@ class Renderer implements GLEventListener, KeyListener
         gl.glLoadIdentity();
     }
 
+    
+    private void drawTerrain(GL2 gl)
+    {
+    	for(int i=0;i<loader.f.size();i++)
+        {
+        	gl.glBegin(GL2.GL_TRIANGLES);	
+        		//gl.glNormal3f(loader.f.get(i).normal[0].x(),loader.f.get(i).normal[0].y(),loader.f.get(i).normal[0].z());
+	        	gl.glVertex3f(loader.f.get(i).getP1().x(), loader.f.get(i).getP1().z(), loader.f.get(i).getP1().y());
+	        	//gl.glNormal3f(loader.f.get(i).normal[1].x(),loader.f.get(i).normal[1].y(),loader.f.get(i).normal[1].z());
+	        	gl.glVertex3f(loader.f.get(i).getP2().x(), loader.f.get(i).getP2().z(), loader.f.get(i).getP2().y());
+	        	//gl.glNormal3f(loader.f.get(i).normal[2].x(),loader.f.get(i).normal[2].y(),loader.f.get(i).normal[2].z());
+	        	gl.glVertex3f(loader.f.get(i).getP3().x(), loader.f.get(i).getP3().z(), loader.f.get(i).getP3().y());
+	        gl.glEnd();
+        }
+    }
+    
     @Override
     public void init(GLAutoDrawable gLDrawable) 
     {
@@ -149,6 +155,11 @@ class Renderer implements GLEventListener, KeyListener
     	System.out.println("init() called");
         GL2 gl = gLDrawable.getGL().getGL2();
         glu = GLU.createGLU(gl);
+        
+        terrain = gl.glGenLists(1);
+        gl.glNewList(terrain, GL2.GL_COMPILE);
+        	drawTerrain(gl);
+        gl.glEndList();
         gl.glClearColor(0.0f, 0.78f, 0.94f, 0.0f); // set background (clear) color
         gl.glClearDepth(1.0f);      // set clear depth value to farthest
         gl.glEnable(GL2.GL_DEPTH_TEST); // enables depth testing
@@ -158,7 +169,6 @@ class Renderer implements GLEventListener, KeyListener
         gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA); 
     	gl.glEnable( GL2.GL_BLEND ); 
         ((Component) gLDrawable).addKeyListener(this);
-        //initLight(gl);
         doLighting(gl);
         float 	xx = loader.v.get(0).x(),
          		yy = loader.v.get(0).y(),
@@ -168,64 +178,18 @@ class Renderer implements GLEventListener, KeyListener
     
     private void doLighting( GL2 gl )
     {
-    	float[] LightAmbient= { 0.8f, 0.8f, 0.8f, 1.0f };
+    	float[] LightAmbient= { 0.1f, 0.1f, 0.1f, 1.0f };
     	float[] LightDiffuse= { 0.34f, 0.7f, 0.0f, 1.0f };
-    	float[] lightSpecular = {0.3f, 0.5f, 0.6f, 1f};
-    	float z = loader.v.get(0).z();
+    	float[] lightSpecular = {0.8f, 0.8f, 0.8f, 1f};
+    	float z = loader.v.get(20000).z();
         z+=500;
-        float[] LightPosition = {loader.v.get(0).x(),z,loader.v.get(0).y(),1};
+        float[] LightPosition = {loader.v.get(20000).x(),z,loader.v.get(20000).y(),1};
     	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, LightAmbient,0);
     	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, LightDiffuse,0);
     	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION,LightPosition,0);
     	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPECULAR, lightSpecular, 0);
     	gl.glEnable(GL2.GL_LIGHT1);  
     	gl.glEnable(GL2.GL_LIGHTING); 
-    	/*
-		// Setup lighting
-		float[] ambientColor = { 0.4f, 0.4f, 0.4f, 1.0f };
-
-		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, lightPosition, 0);
-		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, lightAmbient, 0);
-		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, lightDiffuse, 0);
-		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPECULAR, lightSpecular, 0);
-		gl.glEnable( GL2.GL_LIGHTING );
-		gl.glEnable(GL2.GL_LIGHT1);
-		/*
-        GlobalData.lightPos[0] = 50005;
-        GlobalData.lightPos[1] = 30000;
-        GlobalData.lightPos[2] = 50000;
-        GlobalData.lightPos[3] = 1;
-        gl.glEnable(GLLightingFunc.GL_LIGHTING);
-        gl.glEnable(GLLightingFunc.GL_LIGHT0);
-        float[] noAmbient ={ 0.1f, 0.1f, 0.1f, 1f }; // low ambient light
-        float[] spec =    { 1f, 0.6f, 0f, 1f }; // low ambient light
-        float[] diffuse ={ 1f, 1f, 1f, 1f };
-        // properties of the light
-        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, noAmbient, 0);
-        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, spec, 0);
-        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
-        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, GlobalData.lightPos, 0);
-        */
-    }
-    
-    public void initLight( GL2 gl)
-    {
-      // First Switch the lights on.
-      gl.glEnable( GL2.GL_LIGHTING );
-      gl.glEnable( GL2.GL_LIGHT1 );
-
-      float z = loader.v.get(0).z();
-      z+=1000;
-      float[] lightPos = {loader.v.get(0).x(),z,loader.v.get(0).y(),1};
-      float[] lightColorAmbient = {0.7f, 0.6f, 0.4f, 1f};
-      float[] lightColorSpecular = {0.3f, 0.5f, 0.6f, 1f};
-      
-      // Position and direction (spotlight)
-      gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, lightPos, 0);
-      gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, lightColorAmbient, 0);
-      gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPECULAR, lightColorSpecular, 0);
-      gl.glLightf( GL2.GL_LIGHT1, GL2.GL_CONSTANT_ATTENUATION, 0.2f );
-
     }
     
 	@Override

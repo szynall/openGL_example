@@ -6,17 +6,13 @@ public class Triangle {
    private Vector3 p1;
    private Vector3 p2;
    private Vector3 p3;
-   public Vector3 normal[] = new Vector3[3];
    public Triangle() { }
 
-   public Triangle(Vector3 p1, Vector3 p2, Vector3 p3,Vector3 n1, Vector3 n2, Vector3 n3) 
+   public Triangle(Vector3 p1, Vector3 p2, Vector3 p3) 
    {
           this.setP1(p1);
           this.setP2(p2);
           this.setP3(p3);
-          this.normal[0] = n1;
-          this.normal[1] = n2;
-          this.normal[2] = n3;
    }
    
 
