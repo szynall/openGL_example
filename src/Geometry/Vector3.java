@@ -3,8 +3,7 @@ package Geometry;
 public class Vector3
 {
 	float xyz[] = new float[3];
-	public int vid;
-	public int nr;
+	
 	public Vector3()
 	{
 		xyz[0] = 0;
@@ -24,7 +23,6 @@ public class Vector3
 		xyz[0] = x;
 		xyz[1] = y;
 		xyz[2] = z;
-		vid = _id;
 	}
 
 	
