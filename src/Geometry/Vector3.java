@@ -3,7 +3,8 @@ package Geometry;
 public class Vector3
 {
 	float xyz[] = new float[3];
-	public int id;
+	public int vid;
+	public int nr;
 	public Vector3()
 	{
 		xyz[0] = 0;
@@ -17,7 +18,16 @@ public class Vector3
 		xyz[1] = y;
 		xyz[2] = z;
 	}
+	
+	public Vector3(float x, float y, float z, int _id)
+	{
+		xyz[0] = x;
+		xyz[1] = y;
+		xyz[2] = z;
+		vid = _id;
+	}
 
+	
 	public Vector3(float[] array)
 	{
 		if(array.length != 3)
@@ -142,7 +152,7 @@ public class Vector3
 	}
 	public String toString()
 	{
-		return "( " + xyz[0] + " " + xyz[1] + " " + xyz[2] + " )"; 
+		return xyz[0] + " " + xyz[1] + " " + xyz[2]; 
 	}
 	
 	/*package*/
