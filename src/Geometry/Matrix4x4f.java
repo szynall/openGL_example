@@ -1,12 +1,12 @@
 package Geometry;
 
 public class Matrix4x4f
-{/*
+{
 	public float m[] = new float[16];
 
-    Matrix4x4f()  { identity(); }
+   public Matrix4x4f()  { identity(); }
 
-Matrix4x4f( float m0, float m4, float  m8, float m12,
+ public Matrix4x4f( float m0, float m4, float  m8, float m12,
             float m1, float m5, float  m9, float m13,
             float m2, float m6, float m10, float m14,
             float m3, float m7, float m11, float m15 )
@@ -25,6 +25,54 @@ public void identity( )
     m[3]=0.0f; m[7]=0.0f; m[11]=0.0f; m[15]=1.0f;
 }
 
+public void setColumn(int col, float[] value)
+{
+	m[col*4]=value[0];
+	m[col*4+1]=value[1];
+	m[col*4+2]=value[2];
+	m[col*4+3]=value[3];
+}
+
+void rotate_x(float angle )
+{
+    float s = (float) Math.sin(Math.toRadians(angle));
+    float c = (float) Math.cos(Math.toRadians(angle));
+
+    identity();
+
+    m[5]  =  c;
+    m[6]  =  s;
+    m[9]  = -s;
+    m[10] =  c;
+}
+
+void rotate_y( float angle )
+{
+	float s = (float) Math.sin(Math.toRadians(angle));
+    float c = (float) Math.cos(Math.toRadians(angle));
+
+    identity();
+
+    m[0]  =  c;
+    m[2]  = -s;
+    m[8]  =  s;
+    m[10] =  c;
+}
+
+void rotate_z( float angle )
+{
+	float s = (float) Math.sin(Math.toRadians(angle));
+	float c = (float) Math.cos(Math.toRadians(angle));
+
+    identity();
+
+    m[0] =  c;
+    m[1] =  s;
+    m[4] = -s;
+    m[5] =  c;
+}
+
+/*
 void translate( Vector3 trans )
 {
     identity();

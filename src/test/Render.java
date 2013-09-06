@@ -1,8 +1,13 @@
 package test;
  
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
@@ -14,31 +19,113 @@ import javax.media.opengl.glu.GLU;
 import Geometry.*;
 
 
-class Renderer implements GLEventListener, KeyListener  
+class Renderer implements GLEventListener, KeyListener, MouseListener, 
+MouseMotionListener
 {
     private GLU glu;
     public LoaderOBJ loader = new LoaderOBJ("scene3.obj");
     public Camera camera;
     private boolean forward=false, backward=false, left=false, right = false, up = false, down = false, linesOn;
     private int terrain;
-    float lastTime=0;
+    private float lastTime=0;
+    private float roll = 0;
+    private float mouse_x = 0, mouse_y = 0, lastPosX = 0, lastPosY;
+    
     public void display(GLAutoDrawable drawable) {
     	//float time=drawable.getAnimator().getLastFPS();
     	//System.out.println(time);
         update();
 		render(drawable);
     }
-    
    
 	private void render(GLAutoDrawable gLDrawable)
     {
         GL2 gl = gLDrawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);   
         gl.glEnable(GL2.GL_DEPTH_TEST);  //Z-Buffer Algorith
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
-        gl.glTranslatef(-camera.eyePos.x(), -camera.eyePos.y(), -camera.eyePos.z());  
-    
+        //gl.glTranslatef(-camera.eyePos.x(), -camera.eyePos.y(), -camera.eyePos.z());  
+        gl.glPushMatrix();
+
+	     // initialze ModelView matrix
+	     gl.glLoadIdentity();
+	
+	     // First, transform the camera (viewing matrix) from world space to eye space
+	     // Notice all values are negated, because we move the whole scene with the
+	     // inverse of camera transform
+	     gl.glRotatef(camera.cameraAngle[0], 1.0f, 0.0f, 0.0f);
+	     gl.glRotatef(camera.cameraAngle[1], 0.0f, 1.0f, 0.0f);
+	     gl.glRotatef(camera.cameraAngle[2], 0.0f, 0.0f, 1.0f);
+	     gl.glTranslatef(-camera.eyePos.x(), -camera.eyePos.y(), -camera.eyePos.z());
+	
+	     // draw the grid at origin before model transform
+	     drawGrid(gl, 10000,1000);
+	
+	     // transform the object (model matrix)
+	     // The result of GL_MODELVIEW matrix will be:
+	     // ModelView_M = View_M * Model_M
+	     gl.glTranslatef(1, 0, 0);
+	     gl.glRotatef(1, 1, 0, 0);
+	     gl.glRotatef(1, 0, 1, 0);
+	     gl.glRotatef(1, 0, 0, 1);
+	     
+	     gl.glBegin(GL2.GL_POLYGON);
+	     gl.glColor3f(	 1.0f, 	0.0f,  0.0f);
+	     gl.glVertex3f( -50.5f, -50.5f, -50.5f);       // P1
+	     gl.glVertex3f( -50.5f,  50.5f, -50.5f);       // P2
+	     gl.glVertex3f(  50.5f,  50.5f, -50.5f);       // P3
+	     gl.glVertex3f(  50.5f, -50.5f, -50.5f);       // P4
+	      
+	     gl.glEnd();
+
+	  // White side - BACK
+	     gl.glBegin(GL2.GL_POLYGON);
+	     gl.glColor3f(   1.0f,  1.0f, 1.0f );
+	     gl.glVertex3f(  50.5f, -50.5f, 50.5f );
+	     gl.glVertex3f(  50.5f,  50.5f, 50.5f );
+	     gl.glVertex3f( -50.5f,  50.5f, 50.5f );
+	     gl.glVertex3f( -50.5f, -50.5f, 50.5f );
+	     gl.glEnd();
+	      
+	     // Purple side - RIGHT
+	     gl.glBegin(GL2.GL_POLYGON);
+	     gl.glColor3f(  1.0f,  0.0f,  1.0f );
+	     gl.glVertex3f( 50.5f, -50.5f, -50.5f );
+	     gl.glVertex3f( 50.5f,  50.5f, -50.5f );
+	     gl.glVertex3f( 50.5f,  50.5f,  50.5f );
+	     gl.glVertex3f( 50.5f, -50.5f,  50.5f );
+	     gl.glEnd();
+	      
+	     // Green side - LEFT
+	     gl.glBegin(GL2.GL_POLYGON);
+	     gl.glColor3f(   0.0f,  1.0f,  0.0f );
+	     gl.glVertex3f( -50.5f, -50.5f,  50.5f );
+	     gl.glVertex3f( -50.5f,  50.5f,  50.5f );
+	     gl.glVertex3f( -50.5f,  50.5f, -50.5f );
+	     gl.glVertex3f( -50.5f, -50.5f, -50.5f );
+	     gl.glEnd();
+	      
+	     // Blue side - TOP
+	     gl.glBegin(GL2.GL_POLYGON);
+	     gl.glColor3f(   0.0f,  0.0f,  1.0f );
+	     gl.glVertex3f(  50.5f,  50.5f,  50.5f );
+	     gl.glVertex3f(  50.5f,  50.5f, -50.5f );
+	     gl.glVertex3f( -50.5f,  50.5f, -50.5f );
+	     gl.glVertex3f( -50.5f,  50.5f,  50.5f );
+	     gl.glEnd();
+	      
+	     // Red side - BOTTOM
+	     gl.glBegin(GL2.GL_POLYGON);
+	     gl.glColor3f(   1.0f,  0.0f,  50.0f );
+	     gl.glVertex3f(  50.5f, -50.5f, -50.5f );
+	     gl.glVertex3f(  50.5f, -50.5f,  50.5f );
+	     gl.glVertex3f( -50.5f, -50.5f,  50.5f );
+	     gl.glVertex3f( -50.5f, -50.5f, -50.5f );
+	     gl.glEnd();
+	     
         gl.glCallList(terrain);
+        gl.glPopMatrix();
         gl.glFlush();
     }
     
@@ -86,7 +173,6 @@ class Renderer implements GLEventListener, KeyListener
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
     }
-
     
     private void drawTerrain(GL2 gl)
     {
@@ -159,6 +245,7 @@ class Renderer implements GLEventListener, KeyListener
         GL2 gl = gLDrawable.getGL().getGL2();
         glu = GLU.createGLU(gl);
         
+        
         terrain = gl.glGenLists(1);
         gl.glNewList(terrain, GL2.GL_COMPILE);
         	drawTerrain(gl);
@@ -181,12 +268,18 @@ class Renderer implements GLEventListener, KeyListener
     	gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, diffuse,0);
     	gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, specular,0);
     	gl.glMaterialf(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, 51.2f);
-
+    	
+    	((Component) gLDrawable).addMouseListener(this);
+        ((Component) gLDrawable).addMouseMotionListener(this);
         ((Component) gLDrawable).addKeyListener(this);
+        
         float 	xx = loader.v.get(0).x(),
          		yy = loader.v.get(0).y(),
          		zz = loader.v.get(0).z();
-        camera = new Camera(xx,zz+200,yy,xx,zz,yy+1000);
+        xx=0;
+        yy=0;
+        zz=0;
+        camera = new Camera(xx,zz,yy,xx,zz,yy+100);
         doLighting(gl);
     }
     
@@ -207,7 +300,6 @@ class Renderer implements GLEventListener, KeyListener
     }
     
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
 		int keyCode = e.getKeyCode();
 
 		if (keyCode == KeyEvent.VK_ESCAPE)
@@ -250,6 +342,44 @@ class Renderer implements GLEventListener, KeyListener
 	
 	public void keyTyped(KeyEvent e) {}
 	
+	private void drawGrid(GL2 gl ,float size, float step)
+	{
+	    // disable lighting
+	    //gl.glDisable(GL2.GL_LIGHTING);
+
+	    gl.glBegin(GL2.GL_LINES);
+
+	    //gl.glColor3f(0.3f, 0.3f, 0.3f);
+	    for(float i=step; i <= size; i+= step)
+	    {
+	        gl.glVertex3f(-size, 0,  i);   // lines parallel to X-axis
+	        gl.glVertex3f( size, 0,  i);
+	        gl.glVertex3f(-size, 0, -i);   // lines parallel to X-axis
+	        gl.glVertex3f( size, 0, -i);
+
+	        gl.glVertex3f( i, 0, -size);   // lines parallel to Z-axis
+	        gl.glVertex3f( i, 0,  size);
+	        gl.glVertex3f(-i, 0, -size);   // lines parallel to Z-axis
+	        gl.glVertex3f(-i, 0,  size);
+	    }
+
+	    // x-axis
+	    gl.glColor3f(0.5f, 0, 0);
+	    //gl.glVertex3f(-size, 0, 0);
+	    gl.glVertex3f( size, 0, 0);
+
+	    // z-axis
+	    //gl.glColor3f(0,0,0.5f);
+	    gl.glVertex3f(0, 0, -size);
+	    gl.glVertex3f(0, 0,  size);
+
+	    gl.glEnd();
+
+	    // enable lighting back
+	   // gl.glEnable(GL2.GL_LIGHTING);
+	}
+
+	
 	public void displayChanged(GLAutoDrawable gLDrawable, boolean modeChanged, boolean deviceChanged) 
 	{
 		System.out.println("displayChanged called");
@@ -258,6 +388,55 @@ class Renderer implements GLEventListener, KeyListener
 	public void dispose(GLAutoDrawable arg0) 
 	{
 		System.out.println("dispose() called");
+	}
+
+
+	public void mouseMoved(MouseEvent e)
+	{
+		
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public void mouseEntered(MouseEvent arg0) {}
+	public void mouseExited(MouseEvent arg0) {}
+
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		lastPosX = e.getX();
+		lastPosY = e.getY();
+	}
+
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+		
+	}
+
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		int x = e.getX();
+		int y = e.getY();
+		Dimension size = e.getComponent().getSize();
+		 
+		float thetaY = 360.0f * ( (float)(x-lastPosX)/(float)size.width);
+		float thetaX = 360.0f * ( (float)(lastPosY-y)/(float)size.height);
+		 
+		lastPosX = x;
+		lastPosY = y;
+		 
+		camera.cameraAngle[0] += thetaX;
+		camera.cameraAngle[1] += thetaY;
+		
 	}
     
 }

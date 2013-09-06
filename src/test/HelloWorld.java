@@ -1,5 +1,7 @@
 package test;
 
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.media.opengl.*;
@@ -34,11 +36,10 @@ public class HelloWorld
             		 }).start();
             }
         });
-     
         canvas.setFocusable(true);
         canvas.requestFocus();
         canvas.addGLEventListener(new Renderer());
         animator.start();
     }
-
+    
 }
